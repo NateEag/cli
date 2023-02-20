@@ -52,9 +52,9 @@ Download other people's solutions by providing the UUID.
 
 func runDownload(cfg config.Config, flags *pflag.FlagSet, args []string) error {
 	usrCfg := cfg.UserViperConfig
-	if err := validateUserConfig(usrCfg); err != nil {
-		return err
-	}
+	// if err := validateUserConfig(usrCfg); err != nil {
+	// 	return err
+	// }
 
 	download, err := newDownload(flags, usrCfg)
 	if err != nil {
@@ -76,7 +76,14 @@ func runDownload(cfg config.Config, flags *pflag.FlagSet, args []string) error {
 		return err
 	}
 
-	client, err := api.NewClient(usrCfg.GetString("token"), usrCfg.GetString("apibaseurl"))
+	// FIXME Abstract this logic into one place.
+	var token string = os.Getenv("EXERCISM_API_TOKEN")
+	fmt.Printf("Token is %s", token)
+	if token == "" {
+		token = usrCfg.GetString("token")
+	}
+
+	client, err := api.NewClient(token, usrCfg.GetString("apibaseurl"))
 	if err != nil {
 		return err
 	}
@@ -167,7 +174,12 @@ func newDownload(flags *pflag.FlagSet, usrCfg *viper.Viper) (*download, error) {
 		return nil, err
 	}
 
-	d.token = usrCfg.GetString("token")
+	var token string = os.Getenv("EXERCISM_API_TOKEN")
+	if token == "" {
+		token = usrCfg.GetString("token")
+	}
+
+	d.token = token
 	d.apibaseurl = usrCfg.GetString("apibaseurl")
 	d.workspace = usrCfg.GetString("workspace")
 

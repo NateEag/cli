@@ -8,6 +8,8 @@ import (
 
 	"io"
 
+	"os"
+
 	"github.com/exercism/cli/config"
 	"github.com/spf13/viper"
 )
@@ -61,7 +63,13 @@ const msgMissingMetadata = `
 
 // validateUserConfig validates the presence of required user config values
 func validateUserConfig(cfg *viper.Viper) error {
-	if cfg.GetString("token") == "" {
+	// FIXME Abstract this logic into one place.
+	var token = os.Getenv("EXERCISM_API_TOKEN")
+	if token == "" {
+		token = cfg.GetString("token")
+	}
+
+	if token == "" {
 		return fmt.Errorf(
 			msgWelcomePleaseConfigure,
 			config.SettingsURL(cfg.GetString("apibaseurl")),

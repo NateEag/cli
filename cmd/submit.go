@@ -274,7 +274,12 @@ func (s *submitCmdContext) submit(metadata *workspace.ExerciseMetadata, docs []w
 		return err
 	}
 
-	client, err := api.NewClient(s.usrCfg.GetString("token"), s.usrCfg.GetString("apibaseurl"))
+	var token  = os.Getenv("EXERCISM_API_TOKEN")
+	if token == "" {
+		token = s.usrCfg.GetString("token")
+	}
+
+	client, err := api.NewClient(token, s.usrCfg.GetString("apibaseurl"))
 	if err != nil {
 		return err
 	}
